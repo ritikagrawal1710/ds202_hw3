@@ -1,0 +1,108 @@
+---
+title: "hw3"
+author: "Ritika Agrawal"
+github username: "ritikagrawal1710"
+date: "February 19, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Homework #3
+## Ritika Agrawal ; ritikagrawal1710
+## Tips at Restaurants
+
+In this homework we will use the `tips` data set. This data set is part of the `reshape2` package. You can load the data set by executing the command:
+```{r}
+library(dplyr)
+library(ggplot2)
+data(tips, package="reshape2")
+head(tips)
+```
+If you do not have available the package `reshape2`, issue `install.packages('reshape2')` to install it. The information contained in the data is collected by one waiter, who recorded over the course of a season information about each tip he received working in one restaurant. See `?tips` for a description of all of the variables. 
+
+**Submission instructions**: Create a folder named `ds202_hw3`, and name the RMarkDown file `hw3.Rmd`  which should include your solutions under this folder. For submission, create a GitHub repository named `ds202_hw3` under your GitHub account, and push both `hw3.Rmd` and the knitted `hw3.html` before the deadline. I will assume you use the same GitHub username as for your HW2 submission. The latest version of your homework appearing on GitHub before the deadline is graded. *It is crucial to follow the exact folder structure and file names*, so that your homework can be reproduced and graded by an automated script. This homework is **due on Feb 19** before class.
+
+1.  How many parties did the waiter serve? Store the number in `numParty` and print. 
+```{r}
+numParty = nrow(tips)
+numParty
+```
+
+2. What are the types of variables in the data frame `tips`? Include the code and also explain verbally.
+```{r}
+head(tips)
+summary(tips)
+```
+Response: 'tips' is dependent variable. The others are independent variables. The variables, total_bill, size are numerical and the variables sex, smoker,day,time are categorical variables
+
+3. Create a vector named `day` containing the day of visits in `tips`. The factor levels should be ordered from Thursday to Sunday. Print the variable.
+```{r}
+my_group <- group_by(tips, day)
+day=summarize(my_group, Value = n())
+day$day <- factor(day$day, levels= c("Monday", 
+                                         "Tuesday", "Wednesday", "Thur", "Fri", "Sat","Sun"))
+day = day[order(day$day), ]
+day
+```
+
+4. Create a data frame named `female5` containing the meal paid by a female payer in a party with size greater than or equal to 5. Print the data frame.
+```{r}
+female5 <- subset(tips, size >= 5 & sex == "Female")
+head(female5)
+```
+
+
+5. How does the tipping amount (`tip`) depend on the overall bill (`total_bill`)? Use the `ggplot2` package to make a chart. Describe the relationship in words.  
+```{r}
+ggplot(tips, aes(x=total_bill, y=tip)) + geom_point()
+```
+
+Response: Relation seems to be linear
+
+6. Describe at least two types of anomalies in the previous plot. What do they mean?
+
+Response: If we see the data points 32,2 and 7,5, these are called outliers which do not follow the pattern as most other data points. 
+
+
+7. Introduce a variable `tiprate` into the data set which stands for the rate of tips. What is the average rate for tips? Explain verbally. 
+```{r}
+tips$rate <- tips$tip/tips$total_bill
+head(tips$rate)
+average_rate = summary(tips$rate)[4]
+average_rate
+```
+
+Response:The average rate is 0.1608026. This means that on an average the waiter gets $0.16 per bill.
+
+8. Make a boxplot of the tip rate by time. The x-axis should be ordered by lunch and then dinner. Use `ggplot2` to make a chart. Verbally explain the chart.
+```{r}
+p <- ggplot(tips, aes(x=time, y=rate)) + 
+  geom_boxplot()
+p
+```
+
+Response: The tip rate during lunch is lower than during dinner.There are outliers during dinner where the trip rate is higher than normal.
+
+9. How does smoking behavior and gender of the person who pays impact the relationship between tip and total bill? Find a visualization that incorporates all four variables. Interpret the result.
+```{r}
+a <- ggplot(tips, aes(x=smoker, y=rate)) + 
+  geom_boxplot()
+a
+b <- ggplot(tips, aes(x=sex, y=rate)) + 
+  geom_boxplot()
+b
+```
+
+Reponse: The box plots show that the smokers pay more tips and males pay more tips
+
+
+10. Use ggplot2 to find a graphical summary of the relationship between day of the week and gender of the person paying the bill. What can you say about this relationship?
+```{r}
+ggplot(aes(y = tip, x = day, fill = sex), data = tips) + geom_boxplot()
+```
+
+Response: Males always pay more tip then females irrespective of the day
+
+Note: your submission is supposed to be fully reproducible, i.e. the TA and I will 'knit' your submission in RStudio. 
